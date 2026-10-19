@@ -22,11 +22,15 @@ For details about the technology stack upgrades, refer to [Technology Stack](/te
 
         Style classes in React Native apps now support media queries, so you can define base styles and override them for different device sizes, such as phone and tablet, using project-wide screen width breakpoints.
 
+        For writing media queries, screen size ranges, and adaptive layout patterns, see the [Documentation](../../../user-interfaces/mobile/develop/working-with-layouts/adaptive-layout-with-media-queries).
+
       - ### Pull-to-refresh support <Pill type="mobile" />
 
         Users can now swipe down on a page to refresh its content in React Native apps, with an optional custom Lottie animation as the refresh indicator and an `onPulltoRefresh` event for custom refresh logic.
 
         Set `pulltorefresh` to `true` in `wm_rn_config.json` to enable it for the app, and set the `pulltorefresh` property on the page content component to turn it off for a page.
+
+        For setup steps, the custom refresh animation, and turning it off for a page, see the [Documentation](../../../user-interfaces/mobile/develop/app-configuration/pull-to-refresh).
     </Accordian>
 
     <Accordian title="Backend">
@@ -46,17 +50,23 @@ For details about the technology stack upgrades, refer to [Technology Stack](/te
 
         Select the profiles to bundle in `Enabled Profile(s)` and set the first-launch profile in `Default Profile` under Build Preferences → Application Properties.
 
+        For adding profiles, reading their values, and switching between them at run time, see the [Documentation](../../../user-interfaces/mobile/develop/app-configuration/multi-profile-environments).
+
       - ### Custom Metro configuration <Pill type="mobile" />
 
         Supply additional Metro settings for React Native apps, which WaveMaker merges into the default Metro configuration at build time.
 
         Create `custommetro.config.js` in `src/main/webapp` and export an async function that modifies and returns the base `config`.
 
+        For setup steps and examples, including Sentry, see the [Documentation](../../../user-interfaces/mobile/device-capabilities-mobile/custom-metro-config).
+
       - ### Custom providers for React Native apps <Pill type="mobile" />
 
         Wrap your React Native app with custom providers, so you can use libraries that need a top-level provider, such as `QueryClientProvider` from TanStack Query.
 
         Create `customapp.wrapper.js` in `src/main/webapp` and export a default component that wraps its `children` with your providers.
+
+        For setup steps and a TanStack Query example, see the [Documentation](../../../user-interfaces/mobile/device-capabilities-mobile/custom-app-wrapper).
 
       - ### New Preview (opt-in) <Pill type="mobile" />
 
