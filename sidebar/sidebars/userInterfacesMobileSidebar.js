@@ -112,6 +112,11 @@ export default [
             id: 'user-interfaces/mobile/develop/working-with-layouts/responsive-design-with-layouts',
             label: 'Responsive Design with Layouts',
           },
+          {
+            type: 'doc',
+            id: 'user-interfaces/mobile/develop/working-with-layouts/adaptive-layout-with-media-queries',
+            label: 'Adaptive Layout',
+          },
         ],
       },
       {
@@ -174,6 +179,24 @@ export default [
             type: 'doc',
             id: 'user-interfaces/mobile/develop/integrating-with-apis/bind-expressions',
             label: 'Bind expressions',
+          },
+        ],
+      },
+      {
+        type: 'category',
+        label: 'App configuration',
+        collapsible: true,
+        collapsed: true,
+        items: [
+          {
+            type: 'doc',
+            id: 'user-interfaces/mobile/develop/app-configuration/multi-profile-environments',
+            label: 'Multi-profile environments',
+          },
+          {
+            type: 'doc',
+            id: 'user-interfaces/mobile/develop/app-configuration/pull-to-refresh',
+            label: 'Pull to refresh',
           },
         ],
       },
@@ -418,6 +441,14 @@ export default [
       {
         type: 'doc',
         id: 'user-interfaces/mobile/device-capabilities-mobile/third-party-expo-plugins',
+      },
+      {
+        type: 'doc',
+        id: 'user-interfaces/mobile/device-capabilities-mobile/custom-metro-config',
+      },
+      {
+        type: 'doc',
+        id: 'user-interfaces/mobile/device-capabilities-mobile/custom-app-wrapper',
       },
       // {
       //   type: 'doc',

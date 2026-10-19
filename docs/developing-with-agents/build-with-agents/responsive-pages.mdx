@@ -1,0 +1,77 @@
+---
+title: "Build responsive pages"
+last_update: { author: "Uday Kumar" }
+---
+
+WaveMaker AI can build Web pages that adapt across desktop, tablet, and mobile screen sizes. Use it to create a new responsive page or to make an existing page responsive.
+
+<video controls width="100%" muted playsInline>
+  <source src={require('./assets/vids/wavemaker-ai-responsive.mp4').default} type="video/mp4" />
+</video>
+
+## Ask for responsiveness explicitly
+
+The responsiveness workflow starts only when the request asks for it. Include one of these words or phrases in the prompt:
+
+- responsive
+- adaptive layout
+- mobile-friendly
+- tablet-friendly
+- works across devices
+- fits all screen sizes
+
+A request such as `Fix the button on mobile` is handled as a regular fix. To use the responsiveness workflow, write `Make the button on this page responsive on mobile` instead.
+
+Example requests:
+
+```text
+Create a responsive dashboard page.
+```
+
+```text
+Make the Orders page responsive.
+```
+
+```text
+Make this login page mobile-friendly.
+```
+
+## How the agent handles responsiveness
+
+| Behavior                       | What it means                                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| **Whole-page analysis**        | The agent reads the page structure and decides how each component should adapt to different screen sizes.                 |
+| **Fluid and adaptive layouts** | The agent uses fluid reflow where possible. It asks for confirmation before it changes the layout or behavior on purpose. |
+| **WaveMaker-native first**     | The agent uses built-in WaveMaker layout features before it adds custom CSS, which keeps the page easier to maintain.     |
+| **Angular and React**          | The output works in both Angular and React previews and does not rely on runtime-specific selectors.                      |
+
+## Responsive pages from screenshots
+
+When you build a Web page with [Screenshot to Code](./screenshot-to-code), include responsiveness in the request. The agent makes each page responsive while it generates the page, so a separate pass is not needed.
+
+```text
+Create a responsive page named Pricing from the attached screenshot.
+```
+
+## Review a page for responsiveness issues
+
+Ask the agent to review a page's existing CSS or markup. The review identifies issues such as:
+
+- Fixed widths
+- Content that overflows its container
+- Too many breakpoints
+- Duplicate Angular and React styles
+
+For each issue, the agent shows the code that causes it and recommends a WaveMaker-native fix.
+
+```text
+Review this page's CSS for responsiveness issues.
+```
+
+```text
+Why does this card row overflow on tablet?
+```
+
+## Review the output
+
+Preview the page at desktop, tablet, and mobile widths, in both Angular and React previews if the project uses both. Check that content reflows without horizontal scrolling, that nothing overflows its container, and that any layout change the agent proposed matches what you approved.

@@ -1,0 +1,154 @@
+---
+title: Multi-profile environments
+sidebar_label: Multi-profile environments
+last_update: { author: "Praneeth Reddy" }
+---
+
+A WaveMaker React Native app can carry several environments in one build, for example development, staging and production, and switch between them on the device without a new build or a reinstall. Each environment is a **profile**: a set of key-value pairs such as API hosts, SSO issuers and feature flags, which the app reads through `Global`.
+
+<video controls width="100%" playsInline poster={require('./assets/vids/multi-profile-environments-poster.jpg').default}>
+  <source src={require('./assets/vids/multi-profile-environments.mp4').default} type="video/mp4" />
+</video>
+
+## When to use it
+
+Use multi-profile environments when you want to:
+
+- Test one build against development, staging and production services.
+- Let testers or support teams switch environments on their own devices.
+- Keep environment-specific values, such as URLs and client IDs, out of page logic.
+
+## How it works
+
+<div style={{ display: 'flex', justifyContent: 'center', margin: '2rem 0' }}>
+  ```mermaid
+  %%{init: {'flowchart': {'nodeSpacing': 20, 'rankSpacing': 25}}}%%
+  flowchart TD
+      A["Profile JSON files"] --> B["wm_rn_config.json: enabledProfiles and defaultProfile"]
+      B --> C["Build the app"]
+      C --> D["App opens on a profile"]
+      D --> E["Bindings and scripts read Global"]
+      E --> F["App.setProfile, then App.refresh"]
+      F --> G["Global returns the new profile's values"]
+  ```
+</div>
+
+The profile files, the list of bundled profiles and the default profile are read when the app is built. Changing any of them requires a new build.
+
+## Adding profiles
+
+### 1. Add a key-value file for each profile
+
+Each profile is a flat JSON file of keys and string values, named after the profile:
+
+```json
+{
+  "apiHost": "https://api.dev.example.com",
+  "environmentName": "Development",
+  "betaFeatures": "true"
+}
+```
+
+Add the files in Studio:
+
+1. In the **Resources** panel, click **+** (**Import Resource**).
+2. Select **Project**, then go to `src` > `main` > `webapp` > `resources`.
+3. If there is no `profiles` folder, create it with the new-folder icon.
+4. Open the `profiles` folder, click **Upload Files**, and select one JSON file for each environment, for example `development.json`, `staging.json` and `deployment.json`.
+
+The files end up in `src/main/webapp/resources/profiles/`. Use the same keys in every profile, so that each key has a value whichever profile is active.
+
+:::warning
+Use the `profiles` folder inside `webapp/resources`, not the `profiles` folder at the top of the project. The top-level folder holds the backend `.properties` files and is not read for these values.
+:::
+
+:::caution
+Profile files are packaged inside the app, so anyone who has the app can read them, including the values of profiles that are not active. Store only non-sensitive values, such as URLs, client IDs and feature flags. Do not store passwords, client secrets, private API keys or tokens in these files.
+:::
+
+If a bundled profile has no file, the build continues with no values for that profile and prints a warning.
+
+### 2. Choose the bundled and default profiles
+
+Add these two properties to `wm_rn_config.json`:
+
+```json
+"enabledProfiles" : ["development", "staging", "deployment"],
+"defaultProfile" : "development"
+```
+
+| Property          | Description                                                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `enabledProfiles` | The profiles included in this build. A profile that is not listed is not part of the app and cannot be switched to, even if its file exists.                                         |
+| `defaultProfile`  | The profile the app opens with the first time it runs. It should be one of `enabledProfiles`. If it is empty or not listed, the app opens on the first profile in `enabledProfiles`. |
+
+## Reading profile values
+
+| Where           | How to read a value   |
+| --------------- | --------------------- |
+| Widget property | `bind:Global.keyName` |
+| Script          | `App.Global.keyName`  |
+
+For example, bind a label to a key:
+
+```html
+<wm-label caption="bind:Global.environmentName"></wm-label>
+```
+
+Read a key in a script:
+
+```js
+fetch(App.Global.apiHost + '/orders');
+```
+
+`Global` holds only the values of the active profile.
+
+:::warning
+Only read the values in `Global`. Do not assign or change them, for example `Global.apiHost = '...'`, because that replaces the configured value for the active profile.
+:::
+
+## Switching profiles at run time
+
+| Member                         | Kind     | Description                                                                                                                                                    |
+| ------------------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `App.profileGlobals`           | Property | An object with one entry for each profile in `enabledProfiles`. Use `Object.keys(App.profileGlobals)` to list the profiles in this build. Read only.           |
+| `App.currentProfile`           | Property | The name of the active profile. Read only.                                                                                                                     |
+| `App.getCurrentProfileAsync()` | Method   | Returns a Promise that resolves to the profile saved on the device, or an empty value if the user has never switched.                                          |
+| `App.setProfile(name)`         | Method   | Switches to the profile, saves the choice on the device and loads its values into `Global`. Returns a Promise that rejects if `name` is not a bundled profile. |
+| `App.refresh()`                | Method   | Updates the screen so bindings show the new values. Call it after `App.setProfile` resolves.                                                                   |
+
+`App.setProfile` loads the new values but does not redraw the screen, so call `App.refresh()` after it resolves.
+
+### Example: a profile switcher
+
+Add a Select widget to a page:
+
+```html
+<wm-select name="profileSelect" placeholder="Switch Profile" datafield="dataValue" displayfield="name"
+    on-change="profileSelectChange($event, widget)"></wm-select>
+```
+
+Add the following to the page script:
+
+```js
+// List the bundled profiles as options.
+Page.onReady = function () {
+    Page.Widgets.profileSelect.dataset = Object.keys(App.profileGlobals).map(p => ({ name: p, dataValue: p }));
+};
+
+// Switch to the selected profile, then update the screen.
+Page.profileSelectChange = function ($event, widget) {
+    App.setProfile(widget.datavalue).then(() => App.refresh());
+};
+```
+
+## Which profile the app opens with
+
+- The first time the app runs, it opens on `defaultProfile`.
+- When a user switches profiles, the choice is saved on the device. From then on, the app opens on the saved profile until the user switches again.
+
+## Things to know
+
+- Requests that are already running finish against the endpoint they started with. Only requests made after the switch use the new values.
+- Switching profiles does not sign the user out or end a session. To sign users out when the profile changes, add that logic after `App.setProfile` resolves.
+- Profiles are read at build time. To add a profile, remove one or change its values, update the files and build the app again.

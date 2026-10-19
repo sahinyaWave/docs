@@ -46,4 +46,22 @@ Configure containers with properties such as:
 - **Z-Index**: a numeric stacking order so layers sit above or below siblings
 - **Position value**: **top**, **right**, **bottom**, and **left** offsets when **Position** is not **Relative**
 
-Together, **device visibility** and **Auto Layout** help lists, forms, and panels stay readable from narrow phones up to tablet layouts with minimal duplicated markup.
+## Adaptive layout with media queries
+
+**Media queries** restyle a page for different screen widths from the **Style** tab, without separate pages or branching logic. A query takes a `min-width` or `max-width` condition in pixels:
+
+```css
+.split-view.app-container {
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .split-view.app-container {
+    flex-direction: row;
+  }
+}
+```
+
+The platform evaluates the screen width at runtime, including after the device rotates. Use media queries to scale text and spacing, show or hide widgets, switch panels between stacked and side-by-side layouts, and cap content width on tablets. For a screen size reference, merge rules, step-by-step examples, and workarounds for list direction and items per row, see [Adaptive layout with media queries](./adaptive-layout-with-media-queries).
+
+Together, **device visibility**, **Auto Layout**, and **media queries** help lists, forms, and panels stay readable from narrow phones up to tablet layouts with minimal duplicated markup.

@@ -1,0 +1,118 @@
+---
+title: Pull to refresh
+sidebar_label: Pull to refresh
+last_update: { author: "Praneeth Reddy" }
+---
+
+Pull to refresh lets the people who use your WaveMaker React Native app reload a page by pulling it down from the top and letting go. A refresh indicator appears, the page runs your refresh logic, and the latest data is shown. You turn it on once for the whole app, and you can turn it off on individual pages.
+
+<video controls width="100%" playsInline poster={require('./assets/vids/pull-to-refresh-poster.jpg').default}>
+  <source src={require('./assets/vids/pull-to-refresh.mp4').default} type="video/mp4" />
+</video>
+
+## When to use it
+
+Use pull to refresh when you want to:
+
+- Let users reload lists and dashboards whose data changes often, such as orders, messages or tasks.
+- Give users a familiar way to retry after a failed or slow request.
+- Avoid adding a separate refresh button to every page.
+
+## How it works
+
+<div style={{ display: 'flex', justifyContent: 'center', margin: '2rem 0' }}>
+  ```mermaid
+  %%{init: {'flowchart': {'nodeSpacing': 20, 'rankSpacing': 25}}}%%
+  flowchart TD
+      A["wm_rn_config.json: pulltorefresh is true"] --> B["Build the app"]
+      B --> C["User pulls a page down and lets go"]
+      C --> D["Refresh indicator appears"]
+      D --> E["On Pull To Refresh event runs"]
+      E --> F["Variables reload and the page shows the new data"]
+  ```
+</div>
+
+The pull to refresh settings in `wm_rn_config.json` are read when the app is built. Changing them requires a new build.
+
+## How it looks on each platform
+
+| Platform | Behaviour                                                                                        |
+| -------- | ------------------------------------------------------------------------------------------------ |
+| Android  | The indicator slides down from the top and floats over the page content.                         |
+| iOS      | The page content moves down to reveal the indicator above it, and moves back up when it is done. |
+
+By default, each platform shows its own built-in indicator. You can replace it with your own Lottie animation on both platforms.
+
+## Turning on pull to refresh
+
+### 1. Turn it on for the app
+
+Add this property to `wm_rn_config.json`:
+
+```json
+"pulltorefresh": true
+```
+
+Every page in the app now supports pull to refresh. To turn it off for the whole app, set it to `false` or remove it.
+
+### 2. Use your own animation (optional)
+
+1. In the **Resources** panel, click **+** (**Import Resource**).
+2. Select **Project**, then go to `src` > `main` > `webapp` > `resources` > `files`.
+3. Click **Upload Files** and select your Lottie animation file, for example `my_spinner.json`.
+4. Add its path to `wm_rn_config.json`:
+
+```json
+"pulltorefresh": true,
+"pulltorefreshsource": "resources/files/my_spinner.json"
+```
+
+| Property              | Description                                                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `pulltorefresh`       | Turns pull to refresh on (`true`) or off (`false`) for every page in the app. When it is off or missing, no page can turn it on.  |
+| `pulltorefreshsource` | Optional. The path of a Lottie JSON file to use as the refresh indicator. Leave it out to keep each platform's default indicator. |
+
+Your animation keeps its own width and height ratio, so a wide or square animation is not stretched.
+
+:::note
+Use a Lottie JSON (`.json`) file. A custom animation is shown only after you build the app again.
+:::
+
+### 3. Reload your data when the user pulls
+
+Add the `on-pulltorefresh` event to the page content in the page markup:
+
+```html
+<wm-page-content name="page_content1" on-pulltorefresh="page_content1Pulltorefresh($event, widget)">
+```
+
+In the page script, invoke the variables that you want to reload:
+
+```js
+Page.page_content1Pulltorefresh = function ($event, widget) {
+    Page.Variables.teamVariable.invoke();
+};
+```
+
+The event runs every time the user pulls the page. The page shows the new data as soon as the variables respond.
+
+## Turning it off on one page
+
+To turn off pull to refresh on a single page, set `pulltorefresh` to `false` on the page content in the markup of that page:
+
+```html
+<wm-page-content name="page_content1" pulltorefresh="false">
+```
+
+Pages that do not set `pulltorefresh` follow the app setting.
+
+:::warning
+The app setting is the master switch. If `pulltorefresh` is `false` or missing in `wm_rn_config.json`, pull to refresh is off on every page, including pages that set `pulltorefresh="true"`.
+:::
+
+## Things to know
+
+- Only one refresh runs at a time. If the user pulls again while a refresh is running, the second pull is ignored.
+- The refresh indicator is shown for a short moment and then closes. Invoke your variables in the event so that the page updates when they respond.
+- Pull to refresh needs a scrollable page content, which is the default. If the page content has `scrollable` set to `false`, the page cannot be pulled to refresh. Pages whose content fits on the screen can still be pulled.
+- The settings in `wm_rn_config.json` are read at build time. After you change them, build the app again.

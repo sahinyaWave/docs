@@ -57,6 +57,10 @@ export default [
       },
       {
         type: 'doc',
+        id: 'developing-with-agents/build-with-agents/responsive-pages',
+      },
+      {
+        type: 'doc',
         id: 'developing-with-agents/build-with-agents/apis-data-and-backend',
       },
       {
